@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Python Quiz – Arrays (Sheet 2)</title>
+
+  <!-- Prism.js (CDN) for syntax highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+
+  <style>
+    body { font-family: Arial, sans-serif; margin: 32px; background: #1e1e2f; color: #222; }
+    h1 { color: #dddddd; margin-bottom: 4px; }
+    .meta { margin-bottom: 18px; color: #bbbbbb; }
+    .question { margin-bottom: 18px; padding: 14px; background: #c3c3e0; border-radius: 8px;
+                 box-shadow: 0 1px 3px rgba(20,30,40,0.06); }
+    .q-stem { margin-bottom: 10px; font-size: 15px; }
+    .options { margin-top: 8px; }
+    .option-row { display: flex; gap: 12px; align-items: flex-start; margin: 8px 0; }
+    .option-label { display: flex; align-items: center; gap: 8px; min-width: 48px; }
+    .option-text { line-height: 1.4; }
+    .option-pre { margin: 0; padding: 8px 10px; background: #f2f5f7; border-radius: 6px;
+                  white-space: pre; font-family: Menlo, Monaco, "Courier New", monospace; }
+    .option-pre.code { background: #2d2d2d; color: #eee; } /* used for showing code via Prism theme */
+    button.check { margin-top: 8px; padding: 6px 10px; border-radius: 6px; border: none;
+                   background: #2d86d5; color: white; cursor: pointer; }
+    button.check:hover { background: #246fae; }
+    .feedback { margin-top: 6px; font-weight: 600; }
+    #score { margin-top: 16px; padding: 10px; background: #eef3f8; border-radius: 6px; font-weight: 700; }
+    pre > code { display: block; } /* prism code blocks */
+  </style>
+</head>
+<body>
+  <h1>Quiz Python – <i>Arrays</i> (Sheet 2)</h1>
+  <div class="meta">20 questions. Select all correct answers. Use "Check" for feedback and "Score quiz" at the end.</div>
+
+  <div id="quiz"></div>
+
+  <button onclick="scoreQuiz()" style="margin-top:12px;padding:8px 14px;border-radius:6px;border:none;background:#27ae60;color:#fff;cursor:pointer">
+    Score quiz
+  </button>
+
+  <div id="score"></div>
+
+<script>
+const quiz = [
+  {
+    stem: "Which Python library is used to handle numerical arrays efficiently?",
+    options: ["NumPy","Pandas","Matplotlib","TensorFlow"],
+    correct: [0]
+  },
+  {
+    stem: "Given a NumPy array X, how do you compute its mean value?",
+    options: ["X.mean()","np.mean(X)","mean(X)","X.avg()"],
+    correct: [0,1]
+  },
+  {
+    stem: "Which command gives the RMS (root mean square) deviation of X?",
+    options: [
+      "np.sqrt(np.mean((X - np.mean(X))**2))",
+      "np.std(X)",
+      "np.mean((X - np.mean(X))**2)",
+      "X.rms()"
+    ],
+    correct: [0,1]
+  },
+  {
+    stem: "Can a Python function return both the average and RMS deviation at once?",
+    options: [
+      "Yes, by returning a tuple like (avg, rms)",
+      "No, Python can return only one value",
+      "Yes, by printing both values",
+      "Yes, if using global variables"
+    ],
+    correct: [0]
+  },
+  {
+    stem: "Which of the following NumPy functions compute array statistics?",
+    options: ["np.mean","np.std","np.var","All of the above"],
+    correct: [3]
+  },
+  {
+    stem: "How do you create an array of 100 random values between 5 and 15?",
+    options: [
+      "np.random.rand(100)*10 + 5",
+      "np.random.uniform(5,15,100)",
+      "np.random.random(5,15,100)",
+      "np.uniform(5,15,100)"
+    ],
+    correct: [0,1]
+  },
+  {
+    stem: "Which command creates an array of integers from 0 to 9?",
+    options: ["np.arange(10)","np.linspace(0,9,10)","np.array(10)","range(10)"],
+    correct: [0,1]
+  },
+  {
+    stem: "To approximate an integral from discrete arrays x and y without np.trapz, which method is reasonable?",
+    options: [
+      "Compute dx = x[1]-x[0] and sum(y)*dx",
+      "Use sum(y) directly",
+      "Multiply each y by its x then sum",
+      "Use np.integrate(y,x)"
+    ],
+    correct: [0]
+  },
+  {
+    stem: "In Exercise 3, x[p] and y[p] represent what?",
+    options: [
+      "x: the sampled positions; y: function values f(x)",
+      "x: frequency; y: time",
+      "x: array index; y: constant value",
+      "Both x and y are constants"
+    ],
+    correct: [0]
+  },
+  {
+    stem: "To compute the Riemann sum of f(x) = x² from 0 to 1 with N points:",
+    options: [
+      "x = np.linspace(0,1,N); y = x**2; I = np.sum(y)*(x[1]-x[0])",
+      "x = np.linspace(0,1,N); y = x**2; I = np.sum(y*x)",
+      "I = np.sum(x**2)",
+      "I = np.mean(x**2)"
+    ],
+    correct: [0]
+  },
+  {
+    stem: "When integrating a known function f(x), what do you typically do?",
+    options: [
+      "Discretize x, compute f(x), and sum over dx",
+      "Call f.integrate()",
+      "Use arrays x and y = f(x)",
+      "Compute the integral symbolically"
+    ],
+    correct: [0,2]
+  },
+  {
+    stem: "Is it necessary to use arrays when integrating a known function?",
+    options: ["Not necessarily","Always","Only for plotting","Only if f(x) is linear"],
+    correct: [0]
+  },
+  {
+    stem: "Which command creates 100 equally spaced points from 0 to 2π?",
+    options: [
+      "np.linspace(0,2*np.pi,100)",
+      "np.arange(0,2*np.pi,100)",
+      "range(0,2*np.pi,100)",
+      "np.linspace(0,2*np.pi,99)"
+    ],
+    correct: [0]
+  },
+  {
+    stem: "How do you compute c = cos(ωt) and s = sin(ωt) using NumPy arrays?",
+    options: [
+      "c = np.cos(ω*t); s = np.sin(ω*t)",
+      "c = cos(ω*t); s = sin(ω*t)",
+      "Use np.cos and np.sin directly on arrays",
+      "Loop element by element using for"
+    ],
+    correct: [0,2]
+  },
+  {
+    stem: "Which Matplotlib function plots y versus x?",
+    options: ["plt.plot(x,y)","plt.graph(x,y)","plt.line(x,y)","plt.show(x,y)"],
+    correct: [0]
+  },
+  {
+    stem: "How do you label axes in Matplotlib?",
+    options: ["plt.xlabel('time')","plt.ylabel('amplitude')","plt.axislabel('time','amp')","plt.labelx('time')"],
+    correct: [0,1]
+  },
+  {
+    stem: "To plot cos and sin on the same graph, what can you do?",
+    options: [
+      "Call plt.plot(t,c) then plt.plot(t,s) before plt.show()",
+      "Use plt.multiplot(c,s)",
+      "Use plt.addplot()",
+      "Call plt.show() after each plt.plot"
+    ],
+    correct: [0]
+  },
+  {
+    stem: "Which command creates two subplots stacked vertically?",
+    options: ["plt.subplot(2,1,1)","plt.subplot(1,2,1)","plt.subplots(2,1)","plt.figure(2,1)"],
+    correct: [0,2]
+  },
+  {
+    stem: "Plotting cos(t) versus sin(t) produces:",
+    options: ["A circle","A straight line","A parabola","A sinusoidal curve"],
+    correct: [0]
+  },
+  {
+    stem: "Which statement about NumPy arrays is correct?",
+    options: [
+      "Vectorized operations are faster than loops",
+      "Indexing starts at 0",
+      "Arrays require explicit type declaration",
+      "Operations apply element-wise"
+    ],
+    correct: [0,1,3]
+  }
+];
+
+/* Utility functions */
+function createQuestionElement(q, qi) {
+  const container = document.createElement('div');
+  container.className = 'question';
+
+  const stem = document.createElement('div');
+  stem.className = 'q-stem';
+  stem.innerHTML = `<strong>Q${qi+1}.</strong> ${q.stem}`;
+  container.appendChild(stem);
+
+  if (q.code) {
+    const pre = document.createElement('pre');
+    const code = document.createElement('code');
+    code.className = 'language-python';
+    code.textContent = q.code;
+    pre.appendChild(code);
+    container.appendChild(pre);
+  }
+
+  const opts = document.createElement('div');
+  opts.className = 'options';
+
+  q.options.forEach(function(opt, oi) {
+    const row = document.createElement('div');
+    row.className = 'option-row';
+    const label = document.createElement('label');
+    label.className = 'option-label';
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.name = `q${qi}`;
+    checkbox.value = oi;
+    label.appendChild(checkbox);
+    label.appendChild(document.createTextNode(' ' + String.fromCharCode(65 + oi) + '.'));
+    row.appendChild(label);
+
+    const span = document.createElement('div');
+    span.className = 'option-text';
+    span.textContent = opt;
+    row.appendChild(span);
+    opts.appendChild(row);
+  });
+
+  container.appendChild(opts);
+
+  const checkBtn = document.createElement('button');
+  checkBtn.className = 'check';
+  checkBtn.textContent = 'Check';
+  const fb = document.createElement('div');
+  fb.className = 'feedback';
+  checkBtn.onclick = function() {
+    const selected = Array.from(document.querySelectorAll(`input[name="q${qi}"]:checked`)).map(n => parseInt(n.value));
+    const corr = q.correct.slice().sort();
+    selected.sort();
+    if (JSON.stringify(selected) === JSON.stringify(corr)) {
+      fb.textContent = '✅ Correct!';
+      fb.style.color = 'green';
+    } else {
+      fb.textContent = '❌ Incorrect. Correct: ' + corr.map(i => String.fromCharCode(65+i)).join(', ');
+      fb.style.color = 'crimson';
+    }
+  };
+
+  container.appendChild(checkBtn);
+  container.appendChild(fb);
+
+  return container;
+}
+
+function renderQuiz() {
+  const root = document.getElementById('quiz');
+  quiz.forEach((q, i) => root.appendChild(createQuestionElement(q, i)));
+  if (window.Prism) Prism.highlightAll();
+}
+
+function scoreQuiz() {
+  let total = 0;
+  quiz.forEach((q, qi) => {
+    const selected = Array.from(document.querySelectorAll(`input[name="q${qi}"]:checked`)).map(n => parseInt(n.value)).sort();
+    const corr = q.correct.slice().sort();
+    if (JSON.stringify(selected) === JSON.stringify(corr)) total++;
+  });
+  document.getElementById('score').textContent = `Final Score: ${total} / ${quiz.length}`;
+}
+
+renderQuiz();
+</script>
+</body>
+</html>
