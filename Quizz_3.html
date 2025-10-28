@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Quiz Python – Programmation : Fourier series and Heat equation</title>
+
+  <!-- Prism.js pour la coloration syntaxique -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+
+  <!-- MathJax pour l'affichage des formules -->
+  <script>
+    MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+   <style>
+    body { font-family: Arial, sans-serif; margin: 32px; background: #1e1e2f; color: #222; }
+    h1 { color: #dddddd; margin-bottom: 4px; }
+    .meta { margin-bottom: 18px; color: #bbbbbb; }
+    .question { margin-bottom: 18px; padding: 14px; background: #c3c3e0; border-radius: 8px;
+                 box-shadow: 0 1px 3px rgba(20,30,40,0.06); }
+    .q-stem { margin-bottom: 10px; font-size: 15px; }
+    .options { margin-top: 8px; }
+    .option-row { display: flex; gap: 12px; align-items: flex-start; margin: 8px 0; }
+    .option-label { display: flex; align-items: center; gap: 8px; min-width: 48px; }
+    .option-text { line-height: 1.4; }
+    .option-pre { margin: 0; padding: 8px 10px; background: #f2f5f7; border-radius: 6px;
+                  white-space: pre; font-family: Menlo, Monaco, "Courier New", monospace; }
+    .option-pre.code { background: #2d2d2d; color: #eee; } /* used for showing code via Prism theme */
+    button.check { margin-top: 8px; padding: 6px 10px; border-radius: 6px; border: none;
+                   background: #2d86d5; color: white; cursor: pointer; }
+    button.check:hover { background: #246fae; }
+    .feedback { margin-top: 6px; font-weight: 600; }
+    #score { margin-top: 16px; padding: 10px; background: #eef3f8; border-radius: 6px; font-weight: 700; }
+    pre > code { display: block; } /* prism code blocks */
+  </style>
+</head>
+<body>
+  <h1>Quiz Python – Séries de Fourier et équation de la chaleur (Sheet 3)</h1>
+  <div class="meta">15 questions – certaines avec du code à analyser, d’autres à compléter. Lisez bien le code et sélectionnez toutes les bonnes réponses.</div>
+
+  <div id="quiz"></div>
+
+  <button onclick="scoreQuiz()" style="margin-top:12px;padding:8px 14px;border-radius:6px;border:none;background:#27ae60;color:#fff;cursor:pointer">
+    Calculer le score
+  </button>
+
+  <div id="score"></div>
+
+<script>
+const quiz = [
+  {
+    stem: "1) Cette fonction lambda est utilisée pour calculer les coefficients de Fourier d’un signal carré. Produit-elle des coefficients nuls pour les indices pairs et non nuls pour les indices impairs ?",
+    code: "coefficients_Fourier_carre = lambda A, n: 2*A/(np.arange(1,n+1)*np.pi)*(1 - (-1)**np.arange(1,n+1))",
+    options: [
+      "Non — la fonction renvoie des valeurs non nulles pour tous les n.",
+      "Oui — pour n pair, (1−(−1)**n)=0 et pour n impair, la valeur est non nulle.",
+      "Non — il manque un facteur np.sin().",
+      "Non — lambda ne peut pas retourner de tableau NumPy."
+    ],
+    correct: [1]
+  },
+  {
+    stem: "2) Quelle est la forme du tableau retourné par `coefficients_Fourier_carre(A, 8)` ?",
+    code: "# Indice : n = 8\ncoeffs = coefficients_Fourier_carre(1, 8)\nprint(coeffs.shape)",
+    options: [
+      "(8,1)",
+      "(1,8)",
+      "(8,)",
+      "(,8)"
+    ],
+    correct: [2]
+  },
+  {
+    stem: "3) Ce code calcule la somme partielle d’une série de Fourier. Le résultat a-t-il la même longueur que le tableau `temps` ?",
+    code:`def somme_harmoniques_loop(bn, T, temps):
+    signal = np.zeros(len(temps))   # shape: (len(temps),)
+    for k in range(len(bn)):
+        n = k + 1
+        signal += bn[k] * np.sin(2*np.pi*n/T * temps)
+    return signal`,
+    options: [
+      "Non — `signal` est un scalaire.",
+      "Oui — chaque itération ajoute un vecteur de même taille que `temps`.",
+      "Non — le tableau aura la taille de `bn`.",
+      "Non — `np.sin` retourne ici un scalaire."
+    ],
+    correct: [1]
+  },
+  {
+    stem: "4) Identifiez l’erreur dans cette fonction :",
+    code:`def somme_bug(bn, T, temps):
+    signal = np.zeros(len(temps))
+    for k in range(len(bn)):
+        signal += bn[k] * np.sin(2*np.pi*k/T * temps)   # <-- suspect
+    return signal`,
+    options: [
+      "Le terme dans le sinus doit être (k+1) et non k.",
+      "Il faut écrire bn[k+1].",
+      "Le sinus attend des degrés et non des radians.",
+      "Le signal devrait être une matrice."
+    ],
+    correct: [0]
+  },
+  {
+    stem: "5) Quelle ligne initialise correctement `signal` pour contenir une série temporelle de même longueur que `temps` ?",
+    options: [
+      "signal = np.zeros((len(temps), 1))",
+      "signal = np.zeros(len(position))",
+      "signal = np.zeros(len(temps))",
+      "signal = np.zeros_like(temps)"
+    ],
+    correct: [2,3]
+  },
+  {
+    stem: "6) Que renvoie la fonction `cst_temps(L,D)` ci-dessous ?",
+    code: "def cst_temps(L, D):\n    return 1/(D*(np.pi/L)**2)  # scalaire",
+    options: [
+      "Une valeur scalaire représentant la constante de temps τ₁.",
+      "Un tableau de constantes τ pour chaque harmonique.",
+      "Une matrice 2D de temps.",
+      "Rien — la fonction provoque une erreur."
+    ],
+    correct: [0]
+  },
+  {
+    stem: "7) À propos de cette fonction `U`, laquelle des affirmations est correcte ?",
+    code: "def U(A, tau, L, position, temps):\n    return A * np.exp(-temps/tau) * np.sin(np.pi * position / L)\n# Indices : position.shape = (1001,), temps scalaire",
+    options: [
+      "Si `tau` est scalaire et `temps` est scalaire, la fonction retourne bien un profil selon `position`.",
+      "Cette fonction renvoie toujours un scalaire.",
+      "Si `tau` est un tableau, `temps/tau` crée un tableau incompatible avec `position`.",
+      "Le sinus devrait être au carré."
+    ],
+    correct: [0,2]
+  },
+  {
+    stem: "8) Ce code somme les contributions des harmoniques dans un profil de température. Quelle affirmation est correcte ?",
+    code:`signal = np.zeros(len(position))
+for k in range(len(bk)):
+    signal += bk[k] * np.exp(-temps/tau[k]) * np.sin((k+1)*np.pi/L * position)
+# position.shape = (1001,), temps scalaire`,
+    options: [
+      "Ce code est correct : il additionne chaque mode spatial dans `signal`.",
+      "Le code est invalide en Python.",
+      "Il écrase `signal` à chaque itération.",
+      "La fonction `np.exp` ne peut pas accepter un scalaire."
+    ],
+    correct: [0]
+  },
+  {
+    stem: "9) Que se passe-t-il si l’on appelle plusieurs fois `plt.plot(position,u)` dans une même figure sans effacer les axes ?",
+    options: [
+      "Toutes les courbes sont superposées (plusieurs lignes s’affichent).",
+      "Seule la dernière courbe est visible automatiquement.",
+      "Matplotlib affiche une erreur.",
+      "Chaque appel remplace la figure précédente automatiquement."
+    ],
+    correct: [0]
+  },
+  {
+    stem: "10) Complétez la ligne manquante pour créer un tableau `temps` entre 0 et 10 avec 1001 points (forme attendue : (1001,)) :",
+    code: "### ligne manquante ###\n# temps.shape doit être (1001,)",
+    options: [
+      "temps = np.arange(0, 10, 0.01)",
+      "temps = np.zeros(1001)",
+      "temps = range(0, 1001)",
+      "temps = np.linspace(0, 10, 1001)"
+    ],
+    correct: [3]
+  },
+  {
+    stem: "11) Complétez la ligne manquante dans la boucle pour ajouter le terme harmonique (k de 0 à len(bn)-1) :",
+    code: "for k in range(len(bn)):\n    n = k + 1\n    # ligne manquante",
+    options: [
+      "signal = bn[k] * np.sin(2*np.pi*k/T * temps)",
+      "signal.append(bn[k] * np.sin(2*np.pi*n/T * temps))",
+      "signal += bn[k] * np.sin(2*np.pi*n/T * temps)",
+      "signal += bn[n] * np.sin(2*np.pi*n/T * temps)"
+    ],
+    correct: [2]
+  },
+  {
+    stem: "12) On souhaite calculer numériquement les constantes de temps $\\tau_k$ définies par : $$\\tau_k = \\frac{1}{D(\\frac{k\\pi}{L})^2}$$ Quelle ligne de code est correcte ?",
+    code: "def cst_temps(L, D, n):\n    k = np.arange(1, n+1)\n    # ligne manquante",
+    options: [
+      "return np.zeros(n)",
+      "return k/(D*(np.pi/L)**2)",
+      "return 1/(D*(np.pi/L)**2)",
+      "return 1/(D*(k*np.pi/L)**2)"
+    ],
+    correct: [3]
+  },
+  {
+    stem: "13) Quelle ligne permet d’afficher une légende après avoir tracé plusieurs courbes ?",
+    code: "plt.plot(t, s1)\nplt.plot(t, s2)\n# ligne manquante",
+    options: [
+      "plt.legend(['n=1','n=5'])",
+      "plt.add_legend()",
+      "plt.show_legend()",
+      "plt.legend()"
+    ],
+    correct: [0,3]
+  },
+  {
+    stem: "14) Pour un oscillateur amorti, la pulsation propre est donnée par : $$\\omega_1 = \\sqrt{\\omega_0^2 - \\gamma^2}$$ Quelle ligne de code est correcte ?",
+    code: "omega0 = 2*np.pi\ngamma = 0.5\n# ligne manquante",
+    options: [
+      "omega1 = np.sqrt(omega0 - gamma)",
+      "omega1 = np.sqrt(omega0**2 - gamma**2)",
+      "omega1 = omega0**2 - gamma**2",
+      "omega1 = omega0 - gamma"
+    ],
+    correct: [1]
+  },
+  {
+    stem: "15) Dans une animation Matplotlib, quelle commande met à jour les données `y` d’un objet `Line2D` existant nommé `line` ?",
+    code: "# Dans une fonction de mise à jour\n# ligne manquante",
+    options: [
+      "line = z",
+      "plt.plot(z)",
+      "plt.update(line, z)",
+      "line.set_ydata(z)"
+    ],
+    correct: [3]
+  }
+];
+
+/* === Fonctions d'affichage et de vérification === */
+
+function createQuestionElement(q, qi) {
+  const container = document.createElement('div');
+  container.className = 'question';
+
+  const stem = document.createElement('div');
+  stem.className = 'q-stem';
+  stem.innerHTML = `<strong>${q.stem}</strong>`;
+  container.appendChild(stem);
+
+  if (q.code) {
+    const pre = document.createElement('pre');
+    const code = document.createElement('code');
+    code.className = 'language-python';
+    code.textContent = q.code;
+    pre.appendChild(code);
+    container.appendChild(pre);
+  }
+
+  q.options.forEach((opt, oi) => {
+    const row = document.createElement('div');
+    row.className = 'option-row';
+    const label = document.createElement('label');
+    label.className = 'option-label';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.name = `q${qi}`;
+    cb.value = oi;
+    label.appendChild(cb);
+    label.appendChild(document.createTextNode(' ' + String.fromCharCode(65 + oi) + '. ' + opt));
+    row.appendChild(label);
+    container.appendChild(row);
+  });
+
+  const checkBtn = document.createElement('button');
+  checkBtn.className = 'check';
+  checkBtn.textContent = 'Vérifier';
+  const fb = document.createElement('div');
+  fb.className = 'feedback';
+  checkBtn.onclick = function() {
+    const selected = Array.from(document.querySelectorAll(`input[name="q${qi}"]:checked`)).map(n => parseInt(n.value));
+    selected.sort();
+    const corr = q.correct.slice().sort();
+    const isEqual = JSON.stringify(selected) === JSON.stringify(corr);
+    if (isEqual) {
+      fb.textContent = '✅ Correct !';
+      fb.style.color = 'green';
+    } else {
+      fb.textContent = '❌ Incorrect. Bonne(s) réponse(s) : ' + corr.map(i => String.fromCharCode(65 + i)).join(', ');
+      fb.style.color = 'crimson';
+    }
+  };
+  container.appendChild(checkBtn);
+  container.appendChild(fb);
+  return container;
+}
+
+function renderQuiz() {
+  const root = document.getElementById('quiz');
+  quiz.forEach((q, i) => root.appendChild(createQuestionElement(q, i)));
+  if (window.Prism) Prism.highlightAll();
+  if (window.MathJax) MathJax.typesetPromise();
+}
+
+function scoreQuiz() {
+  let total = 0;
+  quiz.forEach((q, qi) => {
+    const selected = Array.from(document.querySelectorAll(`input[name="q${qi}"]:checked`)).map(n => parseInt(n.value)).sort();
+    const corr = q.correct.slice().sort();
+    if (JSON.stringify(selected) === JSON.stringify(corr)) total++;
+  });
+  document.getElementById('score').textContent = `Score final : ${total} / ${quiz.length}`;
+}
+
+renderQuiz();
+</script>
+</body>
+</html>
